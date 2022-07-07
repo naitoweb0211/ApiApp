@@ -1,6 +1,7 @@
 package jp.techacademy.yuki.naito.apiapp
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,25 +11,34 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_web_view.*
 
 class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     // 取得したJsonデータを解析し、Shop型オブジェクトとして生成したものを格納するリスト
     private val items = mutableListOf<Shop>()
-
     // 一覧画面から登録するときのコールバック（FavoriteFragmentへ通知するメソッド)
     var onClickAddFavorite: ((Shop) -> Unit)? = null
     // 一覧画面から削除するときのコールバック（ApiFragmentへ通知するメソッド)
     var onClickDeleteFavorite: ((Shop) -> Unit)? = null
 
     // Itemを押したときのメソッド
-    var onClickItem: ((String) -> Unit)? = null
+    var onClickItem: ((Shop) -> Unit)? = null
 
+    fun refresh(list: List<Shop>) {
+        update(list, false)
+    }
+
+    fun add(list: List<Shop>) {
+        update(list, true)
+    }
 
     // 表示リスト更新時に呼び出すメソッド
-    fun refresh(list: List<Shop>) {
+    fun update(list: List<Shop>, isAdd: Boolean) {
         items.apply {
-            clear() // items を 空にする
+            if(!isAdd){ // 追加のときは、Clearしない
+                clear() // items を 空にする
+            }
             addAll(list) // itemsにlistを全て追加する
         }
         notifyDataSetChanged() // recyclerViewを再描画させる
@@ -36,6 +46,7 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         // ViewHolderを継承したApiItemViewHolderオブジェクトを生成し戻す
+        Log.d("お気に入り6", "お気に入り6")
         return ApiItemViewHolder(LayoutInflater.from(context).inflate(R.layout.recycler_favorite, parent, false))
     }
 
@@ -76,7 +87,9 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                 setBackgroundColor(ContextCompat.getColor(context,
                     if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray))
                 setOnClickListener {
-                    onClickItem?.invoke(if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+                   /* onClickItem?.invoke(if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc, data.id)*/
+                    Log.d("お気に入り20", "お気に入り20")
+                    onClickItem?.invoke(data)
                 }
             }
             // nameTextViewのtextプロパティに代入されたオブジェクトのnameプロパティを代入
@@ -90,11 +103,13 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                     if (isFavorite) {
                         onClickDeleteFavorite?.invoke(data)
                     } else {
+                        Log.d("お気に入り13","お気に入り13")
                         onClickAddFavorite?.invoke(data)
                     }
                     notifyItemChanged(position)
                 }
             }
+
         }
     }
 }

@@ -11,16 +11,15 @@ import android.view.Menu
 import android.view.MenuItem
 import jp.techacademy.yuki.naito.apiapp.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_main.*
 import android.util.Log
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import kotlinx.android.synthetic.main.activity_web_view.*
 
 
 class MainActivity : AppCompatActivity(), FragmentCallback {
@@ -53,7 +52,6 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
             offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
         }
-
         // TabLayoutの初期化
         // TabLayoutとViewPager2を紐づける
         // TabLayoutのTextを指定する
@@ -61,26 +59,46 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             tab.setText(viewPagerAdapter.titleIds[position])
         }.attach()
     }
-    override fun onClickItem(url: String) {
-        WebViewActivity.start(this, url)
+    override fun onClickItem(url: String, id: String, name: String, imageURL: String) {
+        Log.d("お気に入り21", "お気に入り21")
+/*        val realmConfiguration = RealmConfiguration.Builder()
+            .allowWritesOnUiThread(true)
+            .build()
+        Realm.setDefaultConfiguration(realmConfiguration)
+        var realm = Realm.getDefaultInstance()*/
+        WebViewActivity.start(this, url, id, name, imageURL)
+      //  realm.close()
     }
 
     override fun onAddFavorite(shop: Shop) { // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
-        var favoriteShop :FavoriteShop = FavoriteShop().apply {
-            id = shop.id
-            name = shop.name
-            imageUrl = shop.logoImage
-            url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
-        }
-        Log.d("FavoriteShop", shop.couponUrls.toString())
+        Log.d("お気に入り15", "お気に入り15")
+        Log.d("お気に入り16", shop.id)
+        Log.d("お気に入り17", shop.name)
+        Log.d("お気に入り18", shop.logoImage)
+        Log.d("お気に入り19", shop.couponUrls.sp)
         val realmConfiguration = RealmConfiguration.Builder()
             .allowWritesOnUiThread(true)
             .build()
         Realm.setDefaultConfiguration(realmConfiguration)
-        Log.d("お気に入りに追加","お気に入りに追加" )
-        FavoriteShop.insert(favoriteShop)
+        var realm = Realm.getDefaultInstance()
+        Log.d("お気に入り16", "お気に入り16")
+        FavoriteShop.insert(FavoriteShop().apply {
+            id = shop.id
+            name = shop.name
+            imageUrl = shop.logoImage
+            url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
 
-        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
+        })
+        realm.close()
+        if(viewPagerAdapter != null){
+            viewPager2.apply {
+                adapter = viewPagerAdapter
+                orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
+                offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
+            }
+        }else {
+            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
+        }
     }
 
     override fun onDeleteFavorite(id: String) { // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
@@ -100,14 +118,32 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
     }
 
     private fun deleteFavorite(id: String) {
+       val realmConfiguration = RealmConfiguration.Builder()
+            .allowWritesOnUiThread(true)
+            .build()
+        Realm.setDefaultConfiguration(realmConfiguration)
+        var realm = Realm.getDefaultInstance()
+        Log.d("お気に入り15", "お気に入り15")
         FavoriteShop.delete(id)
-        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
-        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
+        realm.close()
+        Log.d("お気に入り30", viewPagerAdapter.toString())
+        if(viewPagerAdapter != null){
+            viewPager2.apply {
+                adapter = viewPagerAdapter
+                orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
+                offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
+            }
+        }else {
+            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
+            //   (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
+        }
+        Log.d("お気に入り16", "お気に入り16")
+
     }
 
     companion object {
-        private const val VIEW_PAGER_POSITION_API = 0
-        private const val VIEW_PAGER_POSITION_FAVORITE = 1
+        public const val VIEW_PAGER_POSITION_API = 0
+        public const val VIEW_PAGER_POSITION_FAVORITE = 1
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

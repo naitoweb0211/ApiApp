@@ -29,12 +29,12 @@ open class FavoriteShop: RealmObject() {
                     .findFirst()?.let {
                         realm.copyFromRealm(it)
                     }
+                
             }
 
         fun insert(favoriteShop: FavoriteShop) = // お気に入り追加
             Realm.getDefaultInstance().executeTransaction {
                 it.insertOrUpdate(favoriteShop)
-                Log.d("お気に入りの更新2", "お気に入りの更新2")
             }
 
         fun delete(id: String) = // idでお気に入りから削除する
