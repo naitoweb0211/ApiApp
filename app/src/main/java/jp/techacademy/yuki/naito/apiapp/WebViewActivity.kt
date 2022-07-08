@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AlertDialog
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import jp.techacademy.yuki.naito.apiapp.databinding.ActivityMainBinding
@@ -44,26 +45,16 @@ class WebViewActivity: AppCompatActivity(), FragmentCallback  {
             setOnClickListener {
                 if (FavoriteShop.findBy(intent.getStringExtra(KEY_ID).toString()) != null) {
                     Log.d("お気に入り11", "お気に入り11")
-       //             showConfirmDeleteFavoriteDialog(intent.getStringExtra(KEY_ID).toString())
-                    if(viewPagerAdapter == null){
-                        viewPager2.apply {
-                            adapter = viewPagerAdapter
-                            orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
-                            offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
-                        }
-                    }
+                    showConfirmDeleteFavoriteDialog(intent.getStringExtra(KEY_ID).toString())
+
                    //     (viewPagerAdapter.fragments[MainActivity.VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
                         //(viewPagerAdapter.fragments[MainActivity.VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
                     Log.d("お気に入り13", "お気に入り13")
                 } else {
                     Log.d("お気に入り12", "お気に入り12")
                     AddFavorite(data)
-                    Log.d("お気に入り14", "お気に入り14")
-         //           (viewPagerAdapter.fragments[MainActivity.VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
-                   // FavoriteShop.insert(favoriteShop)
-                    //onClickAddFavorite?.invoke(data)
+
                 }
-                //notifyItemChanged(position)
             }
         }
     }
@@ -74,9 +65,6 @@ class WebViewActivity: AppCompatActivity(), FragmentCallback  {
         private const val KEY_NAME = "key_name"
         private const val KEY_IMAGE_URL = "key_image_url"
         fun start(activity: Activity, url: String, id: String, name: String, imageURL: String) {
-            Log.d("お気に入り4", "お気に入り4")
-            Log.d("お気に入り7", id)
-            Log.d("お気に入り8", url)
             var intent = Intent(activity, WebViewActivity::class.java).putExtra(KEY_URL, url)
             intent.putExtra(KEY_ID, id)
             intent.putExtra(KEY_NAME, name)
@@ -100,38 +88,26 @@ class WebViewActivity: AppCompatActivity(), FragmentCallback  {
     }
 
     private fun deleteFavorite(id: String) {
-        val realmConfiguration = RealmConfiguration.Builder()
-            .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(realmConfiguration)
-        var realm = Realm.getDefaultInstance()
-        Log.d("お気に入り13", "お気に入り13")
         FavoriteShop.delete(id)
-        realm.close()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
     fun AddFavorite(shop: Shop) { // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
-       val realmConfiguration = RealmConfiguration.Builder()
-            .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(realmConfiguration)
-        var realm = Realm.getDefaultInstance()
-        Log.d("お気に入り15", "お気に入り15")
+
         FavoriteShop.insert(FavoriteShop().apply {
             id = shop.id
             name = shop.name
             imageUrl = shop.logoImage
             url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
         })
-        (viewPagerAdapter.fragments[MainActivity.VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
-        (viewPagerAdapter.fragments[MainActivity.VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
-        realm.close()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
     override fun onClickItem(url: String, id: String, name: String, imageURL: String) {
         TODO("Not yet implemented")
     }
 
     override fun onAddFavorite(shop: Shop) {
-        Log.d("お気に入り15", "お気に入り15")
         TODO("Not yet implemented")
     }
 

@@ -92,10 +92,8 @@ class ApiFragment: Fragment() {
     }
 
     fun updateView() { // お気に入りが削除されたときの処理（Activityからコールされる）
-        Log.d("お気に入り32", "お気に入り32")
         if(recyclerView != null) {
             recyclerView.adapter?.notifyDataSetChanged() // RecyclerViewのAdapterに対して再描画のリクエストをする
-            Log.d("お気に入り32", recyclerView.adapter.toString())
         }
     }
 

@@ -46,6 +46,11 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         }*/
         toolbar.setBackgroundColor(Color.BLUE)
         toolbar.setTitleTextColor(Color.WHITE)
+        val realmConfiguration = RealmConfiguration.Builder()
+            .allowWritesOnUiThread(true)
+            .build()
+        Realm.setDefaultConfiguration(realmConfiguration)
+        var realm = Realm.getDefaultInstance()
         // ViewPager2の初期化
         viewPager2.apply {
             adapter = viewPagerAdapter
@@ -58,30 +63,13 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
         TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
             tab.setText(viewPagerAdapter.titleIds[position])
         }.attach()
+        realm.close()
     }
     override fun onClickItem(url: String, id: String, name: String, imageURL: String) {
-        Log.d("お気に入り21", "お気に入り21")
-/*        val realmConfiguration = RealmConfiguration.Builder()
-            .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(realmConfiguration)
-        var realm = Realm.getDefaultInstance()*/
         WebViewActivity.start(this, url, id, name, imageURL)
-      //  realm.close()
     }
 
     override fun onAddFavorite(shop: Shop) { // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
-        Log.d("お気に入り15", "お気に入り15")
-        Log.d("お気に入り16", shop.id)
-        Log.d("お気に入り17", shop.name)
-        Log.d("お気に入り18", shop.logoImage)
-        Log.d("お気に入り19", shop.couponUrls.sp)
-        val realmConfiguration = RealmConfiguration.Builder()
-            .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(realmConfiguration)
-        var realm = Realm.getDefaultInstance()
-        Log.d("お気に入り16", "お気に入り16")
         FavoriteShop.insert(FavoriteShop().apply {
             id = shop.id
             name = shop.name
@@ -89,16 +77,7 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
 
         })
-        realm.close()
-        if(viewPagerAdapter != null){
-            viewPager2.apply {
-                adapter = viewPagerAdapter
-                orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
-                offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
-            }
-        }else {
-            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
-        }
+        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
     override fun onDeleteFavorite(id: String) { // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
@@ -118,26 +97,9 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
     }
 
     private fun deleteFavorite(id: String) {
-       val realmConfiguration = RealmConfiguration.Builder()
-            .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(realmConfiguration)
-        var realm = Realm.getDefaultInstance()
-        Log.d("お気に入り15", "お気に入り15")
         FavoriteShop.delete(id)
-        realm.close()
-        Log.d("お気に入り30", viewPagerAdapter.toString())
-        if(viewPagerAdapter != null){
-            viewPager2.apply {
-                adapter = viewPagerAdapter
-                orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
-                offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
-            }
-        }else {
-            (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
-            //   (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
-        }
-        Log.d("お気に入り16", "お気に入り16")
+        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_API] as ApiFragment).updateView()
+        (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
 
     }
 

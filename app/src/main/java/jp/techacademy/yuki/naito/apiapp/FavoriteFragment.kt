@@ -24,14 +24,12 @@ class FavoriteFragment: Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d("お気に入り145", "お気に入り15")
         // fragment_favorite.xmlが反映されたViewを作成して、returnします
         return inflater.inflate(R.layout.fragment_favorite, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("お気に入り31", "お気に入り31")
         // ここから初期化処理を行う
         // FavoriteAdapterのお気に入り削除用のメソッドの追加を行う
         favoriteAdapter.apply {

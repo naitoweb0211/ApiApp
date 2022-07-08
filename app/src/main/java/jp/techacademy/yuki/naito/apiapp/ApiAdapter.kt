@@ -46,7 +46,6 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         // ViewHolderを継承したApiItemViewHolderオブジェクトを生成し戻す
-        Log.d("お気に入り6", "お気に入り6")
         return ApiItemViewHolder(LayoutInflater.from(context).inflate(R.layout.recycler_favorite, parent, false))
     }
 
@@ -88,7 +87,6 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                     if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray))
                 setOnClickListener {
                    /* onClickItem?.invoke(if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc, data.id)*/
-                    Log.d("お気に入り20", "お気に入り20")
                     onClickItem?.invoke(data)
                 }
             }
@@ -103,7 +101,6 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                     if (isFavorite) {
                         onClickDeleteFavorite?.invoke(data)
                     } else {
-                        Log.d("お気に入り13","お気に入り13")
                         onClickAddFavorite?.invoke(data)
                     }
                     notifyItemChanged(position)
